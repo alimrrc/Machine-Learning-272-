@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar  3 16:49:44 2023
+Created on Tue Apr 25 20:58:41 2023
 
 @author: ali
 """
@@ -38,17 +38,17 @@ for feature in features:
             feature_cols[feature].append(col)
     
     feature_df[feature] = df[feature_cols[feature]]
-    
-    for i, row in feature_df[feature].iterrows():
         
-        for val in row:
-            if feature == 'item' or feature == 'make':
-                raw_val = val.replace(" ", "")
-            else:
-                raw_val = val
-                
-            if raw_val not in unique_values[feature] and raw_val != '':
-                unique_values[feature].append(raw_val)            
+    if feature == 'item' or feature == 'make':  
+        
+        feature_df[feature] = feature_df[feature].apply(lambda x: x.str.replace(' ', ''))
+        
+        for i, row in feature_df[feature].iterrows():
+            for val in row:
+                if val != '':
+                    if val not in unique_values[feature]:
+                        unique_values[feature].append(val)
+                    
 
 new_cols = []
 
@@ -66,31 +66,33 @@ count_make = {}
 price_item = {}
 price_make = {}
 
-for row in range(len(df.index)):
-    count_item[row] = {}
-    price_item[row] = {}
+for i, row in feature_df['item'].iterrows():
+    count_item[i] = {}
+    price_item[i] = {}
     
     for item in unique_values['item']:
-        count_item[row][item] = 0
-        price_item[row][item] = 0
+        count_item[i][item] = 0
+        price_item[i][item] = 0
     
-    for col in range(len(feature_df['item'].columns)):
-        if feature_df['item'].iloc[row, col] != '':
-            count_item[row][item] += feature_df['purchas'].iloc[row, col]
-            price_item[row][item] += feature_df['price'].iloc[row, col]
+    for index, val in row.iteritems():
+        if val != '':
+            i_th = int(index[-1])
+            count_item[i][val] += float(feature_df['purchas'].iloc[i, i_th])
+            price_item[i][val] += float(feature_df['price'].iloc[i, i_th])
 
-for row in range(len(df.index)):
-    count_make[row] = {}
-    price_make[row] = {}
+for i, row in feature_df['make'].iterrows():
+    count_make[i] = {}
+    price_make[i] = {}
     
     for make in unique_values['make']:
-        count_make[row][make] = 0
-        price_make[row][make] = 0
+        count_make[i][make] = 0
+        price_make[i][make] = 0
     
-    for col in range(len(feature_df['make'].columns)):
-        if feature_df['make'].iloc[row, col] != '':
-            count_make[row][make] += feature_df['purchas'].iloc[row, col]
-            price_make[row][make] += feature_df['price'].iloc[row, col]
+    for index, val in row.iteritems():
+        if val != '':
+            i_th = int(index[-1])
+            count_make[i][val] += float(feature_df['purchas'].iloc[i, i_th])
+            price_make[i][val] += float(feature_df['price'].iloc[i, i_th])
             
 
 
